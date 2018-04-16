@@ -138,10 +138,12 @@ public class SystemUtil{
                 long inSize1 = 0;
                 while((line=in1.readLine()) != null){
                     line = line.trim();
-
-                    String[] temp = line.split("\\s+");
-                    inSize1 = Long.parseLong(temp[1]);
-                    dls.add(inSize1);
+                    String[] splits=line.split(":");
+                    if(splits.length>1){
+                        String[] temp = splits[1].split("\\s+");
+                        inSize1 = Long.parseLong(temp[1]);
+                        dls.add(inSize1);
+                    }
 
                 /*
                 if(line.startsWith("eth0")||line.startsWith("em1")){
@@ -160,8 +162,6 @@ public class SystemUtil{
                 } catch (InterruptedException e) {
                     StringWriter sw = new StringWriter();
                     e.printStackTrace(new PrintWriter(sw));
-                    System.out.println("NetUsage休眠时发生InterruptedException. " + e.getMessage());
-                    System.out.println(sw.toString());
                 }
                 //第二次采集流量数据
                 long endTime = System.currentTimeMillis();
@@ -171,12 +171,13 @@ public class SystemUtil{
                 int i=0;
                 while((line=in2.readLine()) != null){
                     line = line.trim();
-
-                    String[] temp = line.split("\\s+");
-                    inSize2 = Long.parseLong(temp[1]);
-                    Long lastDL=dls.get(i);
-                    dls.set(i++,inSize2-lastDL);
-
+                    String[] splits=line.split(":");
+                    if(splits.length>1){
+                        String[] temp = line.split("\\s+");
+                        inSize2 = Long.parseLong(temp[1]);
+                        Long lastDL=dls.get(i);
+                        dls.set(i++,inSize2-lastDL);
+                    }
                 /*
                 if(line.startsWith("eth0")||line.startsWith("em1")){
                     System.out.println(line);
@@ -266,7 +267,6 @@ public class SystemUtil{
      */
     public class Disk implements Runnable{
         public void run()  {
-            System.out.println("开始收集磁盘IO使用率");
             float ioUsage = 0.0f;
             Process pro = null;
             Runtime r = Runtime.getRuntime();
@@ -286,7 +286,6 @@ public class SystemUtil{
                     }
                 }
                 if(ioUsage > 0){
-                    System.out.println("本节点磁盘IO使用率为: " + ioUsage);
                     ioUsage /= 100;
                 }
                 in.close();
@@ -294,8 +293,6 @@ public class SystemUtil{
             } catch (IOException e) {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
-                System.out.println("IoUsage发生InstantiationException. " + e.getMessage());
-                System.out.println(sw.toString());
             }
             array[2]=ioUsage;
             latch.countDown();
@@ -308,7 +305,6 @@ public class SystemUtil{
      */
     public class CPU implements Runnable{
         public void run() {
-            System.out.println("开始收集cpu使用率");
             float cpuUsage = 0;
             Process pro1,pro2;
             Runtime r = Runtime.getRuntime();
@@ -323,7 +319,6 @@ public class SystemUtil{
                 while((line=in1.readLine()) != null){
                     if(line.startsWith("cpu")){
                         line = line.trim();
-                        System.out.println(line);
                         String[] temp = line.split("\\s+");
                         idleCpuTime1 = Long.parseLong(temp[4]);
                         for(String s : temp){
@@ -331,7 +326,6 @@ public class SystemUtil{
                                 totalCpuTime1 += Long.parseLong(s);
                             }
                         }
-                        System.out.println("IdleCpuTime: " + idleCpuTime1 + ", " + "TotalCpuTime" + totalCpuTime1);
                         break;
                     }
                 }
@@ -342,8 +336,6 @@ public class SystemUtil{
                 } catch (InterruptedException e) {
                     StringWriter sw = new StringWriter();
                     e.printStackTrace(new PrintWriter(sw));
-                    System.out.println("CpuUsage休眠时发生InterruptedException. " + e.getMessage());
-                    System.out.println(sw.toString());
                 }
                 //第二次采集CPU时间
                 long endTime = System.currentTimeMillis();
@@ -353,7 +345,6 @@ public class SystemUtil{
                 while((line=in2.readLine()) != null){
                     if(line.startsWith("cpu")){
                         line = line.trim();
-                        System.out.println(line);
                         String[] temp = line.split("\\s+");
                         idleCpuTime2 = Long.parseLong(temp[4]);
                         for(String s : temp){
@@ -361,21 +352,17 @@ public class SystemUtil{
                                 totalCpuTime2 += Long.parseLong(s);
                             }
                         }
-                        System.out.println("IdleCpuTime: " + idleCpuTime2 + ", " + "TotalCpuTime" + totalCpuTime2);
                         break;
                     }
                 }
                 if(idleCpuTime1 != 0 && totalCpuTime1 !=0 && idleCpuTime2 != 0 && totalCpuTime2 !=0){
                     cpuUsage = 1 - (float)(idleCpuTime2 - idleCpuTime1)/(float)(totalCpuTime2 - totalCpuTime1);
-                    System.out.println("本节点CPU使用率为: " + cpuUsage);
                 }
                 in2.close();
                 pro2.destroy();
             } catch (IOException e) {
                 StringWriter sw = new StringWriter();
                 e.printStackTrace(new PrintWriter(sw));
-                System.out.println("CpuUsage发生InstantiationException. " + e.getMessage());
-                System.out.println(sw.toString());
             }
             array[1]=cpuUsage;
         }
@@ -391,7 +378,7 @@ public class SystemUtil{
             new Thread(util.new Memory()).start();
             latch.await();
         }catch (InterruptedException e){
-
+            e.printStackTrace();
         }
     }
 }

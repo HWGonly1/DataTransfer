@@ -31,6 +31,7 @@ public class Server implements Runnable{
         try{
             addr= InetAddress.getLocalHost().getHostAddress();
         }catch(UnknownHostException e){
+            e.printStackTrace();
         }
         zkUtil=new ZKUtil(zkServers,rootNode,addr);
         info=new LoadInfo();
@@ -44,6 +45,7 @@ public class Server implements Runnable{
         try{
             addr= InetAddress.getLocalHost().getHostAddress();
         }catch(UnknownHostException e){
+            e.printStackTrace();
         }
         zkUtil=new ZKUtil(zkServers,rootNode,addr);
         info=new LoadInfo();
@@ -76,7 +78,9 @@ public class Server implements Runnable{
                         PrintWriter writer=new PrintWriter(socket.getOutputStream());
                         Map<String, LoadInfo> allServers=zkUtil.getServerList();
 
-
+                        StringBuffer sb=new StringBuffer();
+                        sb.append(responseServer());
+                        sb.append(zkUtil.interval);
                         /*
                         if(new Random().nextBoolean()){
                             sb.append("realServer1");
@@ -85,12 +89,12 @@ public class Server implements Runnable{
                         }
                         */
 
-                        writer.println(responseServer());
+                        writer.println(sb.toString());
                         writer.flush();
                         writer.close();
                         socket.close();
                     }catch (IOException e){
-
+                        e.printStackTrace();
                     }
                 }
             }
@@ -123,6 +127,7 @@ public class Server implements Runnable{
             try{
                 addr= InetAddress.getLocalHost().getHostAddress();
             }catch(UnknownHostException e){
+                e.printStackTrace();
             }
             zkUtil.regServer(info);
             zkUtil.infoMap.put(addr,info);

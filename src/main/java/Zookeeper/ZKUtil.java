@@ -28,10 +28,11 @@ public class ZKUtil{
     //根据是否超出阈值 获取 每个客户端分配的服务器是否发生了变化
     public boolean changed=false;
     //当前服务器更新间隔
-    public int interval;
+    public int interval=3600;
 
 
     public ZKUtil(String zkServers,String rootNode,String addr){
+        System.setProperty("log4j.configuration","file:/Users/hwg/IdeaProjects/DataTransfer/src/log4j.properties");
         this.zkServers=zkServers;
         this.rootNode=rootNode;
         this.addr=addr;
@@ -127,6 +128,7 @@ public class ZKUtil{
                         rebalance();
                         valid=true;
                     }catch (InterruptedException e){
+                        e.printStackTrace();
                     }
                 }
             }
@@ -158,6 +160,7 @@ public class ZKUtil{
                             }
                         }
                         changed=true;
+                        interval=Math.max(interval/2,60);
                     }else{
                         changed=false;
                     }
@@ -169,6 +172,7 @@ public class ZKUtil{
                             }
                         }
                         changed=true;
+                        interval=Math.min(3600,interval*2);
                     }else{
                         changed=false;
                     }
