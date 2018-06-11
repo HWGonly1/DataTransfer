@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.Socket;
 
 public class Agent implements Runnable{
-    private String director="192.168.3.152";
+    private String director="192.168.10.10";
     private int directPort=9529;
     private int ftpPort;
     private int interval;

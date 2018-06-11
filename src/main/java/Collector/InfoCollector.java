@@ -5,6 +5,7 @@ import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
 import org.I0Itec.zkclient.serialize.SerializableSerializer;
 
+import javax.sound.sampled.Line;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
@@ -16,6 +17,11 @@ public class InfoCollector implements Runnable{
     private String rootNode;
     public HashMap<String,LoadInfo> infoMap=new HashMap<String, LoadInfo>();
     private ZkClient zkClient;
+
+    public InfoCollector(String zkServers,String rootNode){
+        this.zkServers=zkServers;
+        this.rootNode=rootNode;
+    }
 
     public HashMap<String,LoadInfo> getServerList(){
         List<String> childs=zkClient.getChildren(rootNode);
@@ -48,6 +54,9 @@ public class InfoCollector implements Runnable{
                 }
             }
         });
+    }
 
+    public static void main(String[] args){
+        new Thread(new InfoCollector(args[0],args[1])).start();
     }
 }
