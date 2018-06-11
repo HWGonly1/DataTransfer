@@ -52,8 +52,7 @@ public class SystemUtil{
             try {
                 Thread.sleep(Server.collectInterval);
             } catch (InterruptedException e) {
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
+                e.printStackTrace();
             }
             //第二次采集流量数据
             long endTime = System.currentTimeMillis();
@@ -160,8 +159,7 @@ public class SystemUtil{
                 try {
                     Thread.sleep(Server.collectInterval);
                 } catch (InterruptedException e) {
-                    StringWriter sw = new StringWriter();
-                    e.printStackTrace(new PrintWriter(sw));
+                    e.printStackTrace();
                 }
                 //第二次采集流量数据
                 long endTime = System.currentTimeMillis();
@@ -203,8 +201,7 @@ public class SystemUtil{
                 in2.close();
                 pro2.destroy();
             } catch (IOException e) {
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
+                e.printStackTrace();
             }
             array[0]=netUsage;
             latch.countDown();
@@ -291,8 +288,7 @@ public class SystemUtil{
                 in.close();
                 pro.destroy();
             } catch (IOException e) {
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
+                e.printStackTrace();
             }
             array[2]=ioUsage;
             latch.countDown();
@@ -334,8 +330,7 @@ public class SystemUtil{
                 try {
                     Thread.sleep(Server.collectInterval);
                 } catch (InterruptedException e) {
-                    StringWriter sw = new StringWriter();
-                    e.printStackTrace(new PrintWriter(sw));
+                    e.printStackTrace();
                 }
                 //第二次采集CPU时间
                 long endTime = System.currentTimeMillis();
@@ -361,8 +356,7 @@ public class SystemUtil{
                 in2.close();
                 pro2.destroy();
             } catch (IOException e) {
-                StringWriter sw = new StringWriter();
-                e.printStackTrace(new PrintWriter(sw));
+                e.printStackTrace();
             }
             array[1]=cpuUsage;
         }
