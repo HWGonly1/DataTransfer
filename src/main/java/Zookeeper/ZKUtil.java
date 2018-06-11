@@ -12,44 +12,46 @@ public class ZKUtil{
     /**
      * 获取当前可用的所有FTP Server地址端口及其负载信息
      */
-    public HashMap<String,LoadInfo> infoMap=new HashMap<String, LoadInfo>();
+    public Hashtable<String,LoadInfo> infoMap=new Hashtable<String, LoadInfo>();
     public ArrayList<String> validServer=new ArrayList<String>();
     public String zkServers;
     public String rootNode;
     public String addr;
     public Boolean valid;
 
+    public Boolean isServer;
+
     public int no=0;
 
     public ZkClient zkClient;
 
-    //负责情况差值的阈值
+    //负载情况差值的阈值
     public float threshold=0.2f;
     //根据是否超出阈值 获取 每个客户端分配的服务器是否发生了变化
     public boolean changed=false;
     //当前服务器更新间隔
-    public int interval=3600;
+    public int interval=10000;
 
 
-    public ZKUtil(String zkServers,String rootNode,String addr){
-        System.setProperty("log4j.configuration","file:/Users/hwg/IdeaProjects/DataTransfer/src/log4j.properties");
+    public ZKUtil(String zkServers,String rootNode,String addr,Boolean isServer){
+        //System.setProperty("log4j.configuration","file:/Users/hwg/IdeaProjects/DataTransfer/src/log4j.properties");
         this.zkServers=zkServers;
         this.rootNode=rootNode;
         this.addr=addr;
         this.zkClient=new ZkClient(zkServers,3000,3000,new SerializableSerializer());
+        this.isServer=isServer;
     }
 
-    public HashMap<String,LoadInfo> getServerList(){
+    public Hashtable<String,LoadInfo> getServerList(){
         List<String> childs=zkClient.getChildren(rootNode);
-        HashMap<String, LoadInfo> map=new HashMap<String, LoadInfo>();
+        Hashtable<String, LoadInfo> map=new Hashtable<String, LoadInfo>();
         boolean alive=false;
         for(String server:childs){
-            if(!server.equals(addr))
-                map.put(server,(LoadInfo)zkClient.readData(rootNode+"/"+server));
-            else
+            map.put(server,(LoadInfo)zkClient.readData(rootNode+"/"+server));
+            if(server.equals(addr))
                 alive=true;
         }
-        if(!alive){
+        if(!alive&&isServer){
             regServer(infoMap.get(addr));
         }
         zkClient.close();
@@ -152,7 +154,7 @@ public class ZKUtil{
                 float max=0,min=1;
                 for(String host:copy.keySet()){
                     float l=calLoad(copy.get(host));
-                    load.put(host,calLoad(copy.get(host)));
+                    load.put(host,l);
                     max=Math.max(max,l);
                     min=Math.min(min,l);
                 }
@@ -164,9 +166,10 @@ public class ZKUtil{
                             }
                         }
                         changed=true;
-                        interval=Math.max(interval/2,60);
+                        interval=Math.max(interval/2,5000);
                     }else{
                         changed=false;
+                        interval=Math.min(interval*2,40000);
                     }
                 }else{
                     if(max-min>threshold){
@@ -176,12 +179,12 @@ public class ZKUtil{
                             }
                         }
                         changed=true;
-                        interval=Math.min(3600,interval*2);
+                        interval=Math.max(interval/2,50);
                     }else{
                         changed=false;
+                        interval=Math.min(interval*2,40000);
                     }
                 }
-
             }
         }
 

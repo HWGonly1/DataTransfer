@@ -28,7 +28,7 @@ public class Server implements Runnable{
         }catch(UnknownHostException e){
             e.printStackTrace();
         }
-        zkUtil=new ZKUtil(zkServers,rootNode,addr);
+        zkUtil=new ZKUtil(zkServers,rootNode,addr,true);
         info=new LoadInfo();
         info.refresh();
     }
@@ -42,7 +42,7 @@ public class Server implements Runnable{
         }catch(UnknownHostException e){
             e.printStackTrace();
         }
-        zkUtil=new ZKUtil(zkServers,rootNode,addr);
+        zkUtil=new ZKUtil(zkServers,rootNode,addr,true);
         info=new LoadInfo();
         info.refresh();
     }
@@ -78,13 +78,6 @@ public class Server implements Runnable{
                         sb.append(responseServer());
                         sb.append(";");
                         sb.append(zkUtil.interval);
-                        /*
-                        if(new Random().nextBoolean()){
-                            sb.append("realServer1");
-                        }else{
-                            sb.append("realServer2");
-                        }
-                        */
 
                         writer.println(sb.toString());
                         writer.flush();
@@ -115,7 +108,6 @@ public class Server implements Runnable{
             new Thread(new Server(args[0],args[1])).start();
         }else{
             throw new IllegalArgumentException("Wrong arguments to launch Server!");
-            //new Thread(new Server()).start();
         }
     }
 

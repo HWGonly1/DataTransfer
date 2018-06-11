@@ -22,14 +22,25 @@ public class Director implements Runnable{
         try{
             addr= InetAddress.getLocalHost().getHostAddress();
         }catch(UnknownHostException e){
+            e.printStackTrace();
         }
-        zkUtil=new ZKUtil(zkServers,rootNode,addr);
+        zkUtil=new ZKUtil(zkServers,rootNode,addr,false);
+    }
+
+    public String responseServer(){
+        String server="";
+        synchronized (zkUtil.validServer){
+            server=zkUtil.validServer.get(zkUtil.no);
+            zkUtil.no++;
+            zkUtil.no%=zkUtil.validServer.size();
+        }
+        return server;
     }
 
     public void run(){
         ServerSocket server=null;
         try{
-            server=new ServerSocket(9527);
+            server=new ServerSocket(9529);
         }catch(IOException e){
             e.printStackTrace();
         }
@@ -46,18 +57,15 @@ public class Director implements Runnable{
                         Map<String, LoadInfo> allServers=zkUtil.getServerList();
                         StringBuilder sb=new StringBuilder();
 
-                        List<String> list=Arrays.asList((String[])allServers.keySet().toArray());
-                        Collections.shuffle(list);
-                        for(String s:list){
-                            sb.append(s);
-                            sb.append(";");
-                        }
+                        sb.append(responseServer());
+                        sb.append(";");
 
                         writer.println(sb.toString());
                         writer.flush();
                         writer.close();
                         socket.close();
                     }catch (IOException e){
+                        e.printStackTrace();
                     }
                 }
             }
