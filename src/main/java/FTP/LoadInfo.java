@@ -14,11 +14,5 @@ public class LoadInfo {
         cpu=res[1];
         disk=res[2];
         mem=res[3];
-        /*
-        net=SystemUtil.get();
-        cpu=SystemUtil.getCpuUsage();
-        disk=SystemUtil.getHdIOpPercent();
-        mem=SystemUtil.memoryUsage();
-        */
     }
 }

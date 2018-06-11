@@ -70,11 +70,13 @@ public class ZKUtil{
 
         new Thread(new Balancer()).start();
 
+        /*
         for(String host:infoMap.keySet()){
             if(!addr.equals(host)){
                 zkClient.subscribeDataChanges(rootNode+"/"+addr,new DataListener());
             }
         }
+        */
     }
 
     /**
@@ -96,11 +98,13 @@ public class ZKUtil{
             infoMap.clear();
             infoMap=getServerList();
 
+            /*
             for(String host:infoMap.keySet()){
                 if(!addr.equals(host)){
                     zkClient.subscribeDataChanges(rootNode+"/"+addr,new DataListener());
                 }
             }
+            */
         }
     }
 
@@ -152,7 +156,7 @@ public class ZKUtil{
                     max=Math.max(max,l);
                     min=Math.min(min,l);
                 }
-                if(min>0.9){
+                if(min>0.9-threshold){
                     if(max-min>threshold){
                         for(String host:load.keySet()){
                             if(load.get(host)-min<threshold){

@@ -32,7 +32,8 @@ public class FTPUtil {
             ftpClient.connect(hostname,port);
             ftpClient.login(username,password);
             int replyCode=ftpClient.getReplyCode();
-            if(!FTPReply.isPositiveCompletion(replyCode)){
+            flag=FTPReply.isPositiveCompletion(replyCode);
+            if(!flag){
                 return flag;
             }
             ftpClient.setFileType(FTPClient.BINARY_FILE_TYPE);
@@ -41,16 +42,16 @@ public class FTPUtil {
             ftpClient.storeFile(fileName,inputStream);
             inputStream.close();
             ftpClient.logout();
-            flag=true;
         }catch(IOException e){
             //连接异常，需要重新请求可用FTP服务器列表
-            Uploader.uploader.failover();
+            e.printStackTrace();
         }finally{
             if(ftpClient.isConnected()){
                 try {
                     ftpClient.disconnect();
                 }catch(IOException e){
                     //断开连接异常，处理
+                    e.printStackTrace();
                 }
             }
         }

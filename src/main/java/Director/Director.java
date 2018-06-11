@@ -15,9 +15,6 @@ public class Director implements Runnable{
     String zkServers,rootNode;
     public ZKUtil zkUtil;
 
-    public Director(){
-    }
-
     public Director(String zkServers,String rootNode){
         this.zkServers=zkServers;
         this.rootNode=rootNode;
@@ -56,26 +53,11 @@ public class Director implements Runnable{
                             sb.append(";");
                         }
 
-                        /*
-                        if(new Random().nextBoolean()){
-                            sb.append("192.168.3.152");
-                        }else{
-                            sb.append("192.168.10.10");
-                        }
-                        sb.append(";");
-                        if(new Random().nextBoolean()){
-                            sb.append("192.168.3.152");
-                        }else{
-                            sb.append("192.168.10.10");
-                        }
-                        */
-
                         writer.println(sb.toString());
                         writer.flush();
                         writer.close();
                         socket.close();
                     }catch (IOException e){
-
                     }
                 }
             }
@@ -87,6 +69,5 @@ public class Director implements Runnable{
             System.exit(1);
         }
         new Thread(new Director(args[0],args[1])).start();
-        //new Thread(new Director()).start();
     }
 }

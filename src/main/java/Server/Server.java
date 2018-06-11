@@ -10,7 +10,6 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.net.UnknownHostException;
 import java.util.Map;
-import java.util.Random;
 
 public class Server implements Runnable{
     public static int collectInterval=2000;
@@ -20,12 +19,8 @@ public class Server implements Runnable{
     public LoadInfo info;
     public String addr;
 
-    Server(){
-
-    }
-
     Server(int collectInterval,String zkServers,String rootNode){
-        this.collectInterval=collectInterval;
+        Server.collectInterval=collectInterval;
         this.zkServers=zkServers;
         this.rootNode=rootNode;
         try{
@@ -39,7 +34,7 @@ public class Server implements Runnable{
     }
 
     Server(String zkServers,String rootNode){
-        this.collectInterval=2000;
+        Server.collectInterval=2000;
         this.zkServers=zkServers;
         this.rootNode=rootNode;
         try{
@@ -55,6 +50,7 @@ public class Server implements Runnable{
 
     public static LoadInfo getInfo(){
         LoadInfo info=new LoadInfo();
+        info.refresh();
         return info;
     }
 
@@ -80,6 +76,7 @@ public class Server implements Runnable{
 
                         StringBuffer sb=new StringBuffer();
                         sb.append(responseServer());
+                        sb.append(";");
                         sb.append(zkUtil.interval);
                         /*
                         if(new Random().nextBoolean()){
@@ -105,6 +102,7 @@ public class Server implements Runnable{
         String server="";
         synchronized (zkUtil.validServer){
             server=zkUtil.validServer.get(zkUtil.no);
+            zkUtil.no++;
             zkUtil.no%=zkUtil.validServer.size();
         }
         return server;
