@@ -2,7 +2,9 @@ package FTP;
 
 import Server.SystemUtil;
 
-public class LoadInfo {
+import java.io.Serializable;
+
+public class LoadInfo implements Serializable{
     public float net=0;
     public float cpu=0;
     public float disk=0;

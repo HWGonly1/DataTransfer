@@ -71,14 +71,6 @@ public class ZKUtil{
         infoMap=getServerList();
 
         new Thread(new Balancer()).start();
-
-        /*
-        for(String host:infoMap.keySet()){
-            if(!addr.equals(host)){
-                zkClient.subscribeDataChanges(rootNode+"/"+addr,new DataListener());
-            }
-        }
-        */
     }
 
     /**
@@ -99,14 +91,6 @@ public class ZKUtil{
         public void handleChildChange(String s, List<String> list) throws Exception {
             infoMap.clear();
             infoMap=getServerList();
-
-            /*
-            for(String host:infoMap.keySet()){
-                if(!addr.equals(host)){
-                    zkClient.subscribeDataChanges(rootNode+"/"+addr,new DataListener());
-                }
-            }
-            */
         }
     }
 

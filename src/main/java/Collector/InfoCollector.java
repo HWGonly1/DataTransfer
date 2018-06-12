@@ -11,22 +11,24 @@ import java.util.HashMap;
 import java.util.List;
 
 public class InfoCollector implements Runnable{
-    private String path="/home/hwg/InfoCollection";
+    private String path="/home/hwg/DataTransfer/InfoCollection";
     private String zkServers;
     private String rootNode;
     public HashMap<String,LoadInfo> infoMap=new HashMap<String, LoadInfo>();
     private ZkClient zkClient;
 
-    public InfoCollector(String zkServers,String rootNode){
+    public InfoCollector(String zkServers,String rootNode,String path){
         this.zkServers=zkServers;
         this.rootNode=rootNode;
+        this.path=path;
     }
 
     public HashMap<String,LoadInfo> getServerList(){
         List<String> childs=zkClient.getChildren(rootNode);
         HashMap<String, LoadInfo> map=new HashMap<String, LoadInfo>();
-        boolean alive=false;
-        zkClient.close();
+        for(String server:childs){
+            map.put(server,(LoadInfo)zkClient.readData(rootNode+"/"+server));
+        }
         return map;
     }
 
@@ -45,6 +47,7 @@ public class InfoCollector implements Runnable{
                         writer.write(key+"\t");
                         writer.write(infoMap.get(key).cpu+"\t"+infoMap.get(key).disk+"\t"+infoMap.get(key).mem+"\t"+infoMap.get(key).net);
                         writer.write("\r\n");
+                        System.out.println(key);
                     }
                 }catch (IOException e){
                     e.printStackTrace();
@@ -53,9 +56,22 @@ public class InfoCollector implements Runnable{
                 }
             }
         });
+        while(true){
+            try {
+                Thread.sleep(1000);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
     }
 
     public static void main(String[] args){
-        new Thread(new InfoCollector(args[0],args[1])).start();
+        Thread collector=new Thread(new InfoCollector(args[0],args[1],args[2]));
+        collector.start();
+        try {
+            collector.join();
+        }catch (InterruptedException e){
+            e.printStackTrace();
+        }
     }
 }

@@ -1,6 +1,5 @@
 package FTP;
 
-import Client.Uploader;
 import org.apache.commons.net.ftp.FTPClient;
 import org.apache.commons.net.ftp.FTPReply;
 

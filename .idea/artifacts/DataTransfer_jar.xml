@@ -2,26 +2,15 @@
   <artifact type="jar" build-on-make="true" name="DataTransfer:jar">
     <output-path>$PROJECT_DIR$/out/artifacts/DataTransfer_jar</output-path>
     <root id="archive" name="DataTransfer.jar">
-      <element id="directory" name="META-INF">
-        <element id="file-copy" path="$PROJECT_DIR$/src/META-INF/MANIFEST.MF" />
-      </element>
       <element id="module-output" name="DataTransfer" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-log4j12/1.6.1/slf4j-log4j12-1.6.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/jline/jline/0.9.94/jline-0.9.94.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-net/commons-net/3.1/commons-net-3.1.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/log4j/log4j/1.2.17/log4j-1.2.17.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-log4j12/1.6.1/slf4j-log4j12-1.6.1.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/com/101tec/zkclient/0.10/zkclient-0.10.jar" path-in-jar="/" />
       <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/slf4j/slf4j-api/1.6.1/slf4j-api-1.6.1.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/log4j/log4j/1.2.16/log4j-1.2.16.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/io/netty/netty/3.10.5.Final/netty-3.10.5.Final.jar" path-in-jar="/" />
-      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.4.10/zookeeper-3.4.10.jar" path-in-jar="/" />
-      <element id="library" level="project" name="Maven: com.101tec:zkclient:0.10" />
-      <element id="library" level="project" name="Maven: commons-net:commons-net:3.1" />
-      <element id="library" level="project" name="Maven: io.netty:netty:3.10.5.Final" />
-      <element id="library" level="project" name="Maven: jline:jline:0.9.94" />
-      <element id="library" level="project" name="Maven: log4j:log4j:1.2.16" />
-      <element id="library" level="project" name="Maven: org.apache.zookeeper:zookeeper:3.4.10" />
-      <element id="library" level="project" name="Maven: org.slf4j:slf4j-api:1.6.1" />
-      <element id="library" level="project" name="Maven: org.slf4j:slf4j-log4j12:1.6.1" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/io/netty/netty/3.7.0.Final/netty-3.7.0.Final.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/org/apache/zookeeper/zookeeper/3.4.8/zookeeper-3.4.8.jar" path-in-jar="/" />
+      <element id="extracted-dir" path="$MAVEN_REPOSITORY$/commons-net/commons-net/3.1/commons-net-3.1.jar" path-in-jar="/" />
     </root>
   </artifact>
 </component>
