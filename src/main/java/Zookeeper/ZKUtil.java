@@ -17,7 +17,7 @@ public class ZKUtil{
     public String zkServers;
     public String rootNode;
     public String addr;
-    public Boolean valid;
+    public Boolean valid=true;
 
     public Boolean isServer;
 
@@ -54,7 +54,6 @@ public class ZKUtil{
         if(!alive&&isServer){
             regServer(infoMap.get(addr));
         }
-        zkClient.close();
         return map;
     }
 
@@ -68,7 +67,6 @@ public class ZKUtil{
 
         zkClient.createEphemeral(rootNode+"/"+addr,info);
 
-
         try {
             Thread.sleep(2000);
         }catch (Exception e){
@@ -78,6 +76,11 @@ public class ZKUtil{
 
         zkClient.subscribeChildChanges(rootNode, new ChildListener());
         infoMap=getServerList();
+        for(String s:infoMap.keySet()){
+            if(!s.equals(addr)){
+                zkClient.subscribeDataChanges(rootNode+"/"+s,new DataListener());
+            }
+        }
 
         new Thread(new Balancer()).start();
     }
@@ -98,6 +101,12 @@ public class ZKUtil{
 
     class ChildListener implements IZkChildListener{
         public void handleChildChange(String s, List<String> list) throws Exception {
+            for(String str:list){
+                if(!infoMap.containsKey(str)){
+                    zkClient.subscribeDataChanges(s+"/"+str,new DataListener());
+                }
+            }
+
             infoMap.clear();
             infoMap=getServerList();
         }
@@ -113,7 +122,7 @@ public class ZKUtil{
         }
 
         public void handleDataDeleted(String s) throws Exception {
-            infoMap.put(s,null);
+            infoMap.remove(s);
         }
     }
 

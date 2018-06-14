@@ -176,6 +176,9 @@ public class SystemUtil{
                         //dls.set(i++,inSize2-lastDL);
                     }
                 }
+                in2.close();
+                pro2.destroy();
+
 
                 long max=0;
                 String card="lo";
@@ -200,7 +203,7 @@ public class SystemUtil{
                 //获取流量最大的网卡带宽
                 pro3=r.exec("ethtool "+card);
                 BufferedReader in3 = new BufferedReader(new InputStreamReader(pro3.getInputStream()));
-                while((line=in1.readLine())!=null){
+                while((line=in3.readLine())!=null){
                     if(line.contains("Speed:")){
                         TotalBandwidth=Integer.parseInt(line.substring(line.indexOf(":")+1,line.indexOf("Mb")).trim());
                         break;
@@ -208,8 +211,8 @@ public class SystemUtil{
                 }
 
                 netUsage=curRate/TotalBandwidth;
-                in2.close();
-                pro2.destroy();
+                in3.close();
+                pro3.destroy();
 
             } catch (IOException e) {
                 e.printStackTrace();
