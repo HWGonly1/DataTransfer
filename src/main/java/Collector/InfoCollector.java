@@ -47,7 +47,6 @@ public class InfoCollector implements Runnable{
                         writer.write(key+"\t");
                         writer.write(infoMap.get(key).cpu+"\t"+infoMap.get(key).disk+"\t"+infoMap.get(key).mem+"\t"+infoMap.get(key).net);
                         writer.write("\r\n");
-                        System.out.println(key);
                     }
                 }catch (IOException e){
                     e.printStackTrace();

@@ -67,6 +67,15 @@ public class ZKUtil{
         }
 
         zkClient.createEphemeral(rootNode+"/"+addr,info);
+
+
+        try {
+            Thread.sleep(2000);
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+
+
         zkClient.subscribeChildChanges(rootNode, new ChildListener());
         infoMap=getServerList();
 

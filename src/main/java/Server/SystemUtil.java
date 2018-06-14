@@ -122,37 +122,32 @@ public class SystemUtil{
      */
     public class BandWidth implements Runnable{
         public void run(){
-            float TotalBandwidth = 1000;
+            float TotalBandwidth=0;
             float netUsage = 0.0f;
-            Process pro1,pro2;
+            Process pro1,pro2,pro3;
             Runtime r = Runtime.getRuntime();
-            ArrayList<Long> dls=new ArrayList<Long>();
+
+            //ArrayList<Long> dls=new ArrayList<Long>();
+            HashMap<String,Long> map=new HashMap<String, Long>();
+
             try {
                 String command = "cat /proc/net/dev";
                 //第一次采集流量数据
                 long startTime = System.currentTimeMillis();
                 pro1 = r.exec(command);
                 BufferedReader in1 = new BufferedReader(new InputStreamReader(pro1.getInputStream()));
-                String line = null;
-                long inSize1 = 0;
+                String line;
+                long inSize1;
+                long outSize1;
                 while((line=in1.readLine()) != null){
                     line = line.trim();
                     String[] splits=line.split(":");
-                    if(splits.length>1){
-                        String[] temp = splits[1].split("\\s+");
-                        inSize1 = Long.parseLong(temp[1]);
-                        dls.add(inSize1);
+                    if(splits.length>1&&(!splits[0].trim().equals("lo"))){
+                        String[] temp = splits[1].trim().split("\\s+");
+                        inSize1 = Long.parseLong(temp[0]);
+                        outSize1 = Long.parseLong(temp[8]);
+                        map.put(splits[0].trim(),inSize1+outSize1);
                     }
-
-                /*
-                if(line.startsWith("eth0")||line.startsWith("em1")){
-                    System.out.println(line);
-                    String[] temp = line.split("\\s+");
-                    inSize1 = Long.parseLong(temp[1].substring(5)); //Receive bytes,单位为Byte
-                    outSize1 = Long.parseLong(temp[9]);             //Transmit bytes,单位为Byte
-                    break;
-                }
-                */
                 }
                 in1.close();
                 pro1.destroy();
@@ -165,41 +160,57 @@ public class SystemUtil{
                 long endTime = System.currentTimeMillis();
                 pro2 = r.exec(command);
                 BufferedReader in2 = new BufferedReader(new InputStreamReader(pro2.getInputStream()));
-                long inSize2 = 0;
+                long inSize2;
+                long outSize2;
                 int i=0;
                 while((line=in2.readLine()) != null){
                     line = line.trim();
                     String[] splits=line.split(":");
-                    if(splits.length>1){
-                        String[] temp = line.split("\\s+");
-                        inSize2 = Long.parseLong(temp[1]);
-                        Long lastDL=dls.get(i);
-                        dls.set(i++,inSize2-lastDL);
+                    if(splits.length>1&&(!splits[0].trim().equals("lo"))){
+                        String[] temp = splits[1].trim().split("\\s+");
+                        inSize2 = Long.parseLong(temp[0]);
+                        outSize2 = Long.parseLong(temp[8]);
+                        Long last=map.get(splits[0].trim());
+                        map.put(splits[0].trim(),inSize2+outSize2-last);
+                        //Long lastDL=dls.get(i);
+                        //dls.set(i++,inSize2-lastDL);
                     }
-                /*
-                if(line.startsWith("eth0")||line.startsWith("em1")){
-                    System.out.println(line);
-                    String[] temp = line.split("\\s+");
-                    inSize2 = Long.parseLong(temp[1].substring(5));
-                    outSize2 = Long.parseLong(temp[9]);
-                    break;
-                }
-                */
                 }
 
                 long max=0;
-                for(Long dlInTime:dls){
-                    max=Math.max(max,dlInTime);
+                String card="lo";
+                for(String s:map.keySet()){
+                    if(map.get(s)>max){
+                        card=s;
+                        max=map.get(s);
+                    }
                 }
-
+                /*
                 if(inSize1 != 0 &&inSize2 != 0){
                     float interval = (float)(endTime - startTime)/1000;
                     //网口传输速度,单位为bps
                     float curRate = (float)(inSize2 - inSize1)*8/(1000000*interval);
                     netUsage = curRate/TotalBandwidth;
                 }
+                */
+
+                float interval=(float)(endTime-startTime)/1000;
+                float curRate=(float)max*8/(interval*1000000);
+
+                //获取流量最大的网卡带宽
+                pro3=r.exec("ethtool "+card);
+                BufferedReader in3 = new BufferedReader(new InputStreamReader(pro3.getInputStream()));
+                while((line=in1.readLine())!=null){
+                    if(line.contains("Speed:")){
+                        TotalBandwidth=Integer.parseInt(line.substring(line.indexOf(":")+1,line.indexOf("Mb")).trim());
+                        break;
+                    }
+                }
+
+                netUsage=curRate/TotalBandwidth;
                 in2.close();
                 pro2.destroy();
+
             } catch (IOException e) {
                 e.printStackTrace();
             }
@@ -265,14 +276,14 @@ public class SystemUtil{
     public class Disk implements Runnable{
         public void run()  {
             float ioUsage = 0.0f;
-            Process pro = null;
+            Process pro;
             Runtime r = Runtime.getRuntime();
             try {
                 String command = "iostat -d -x";
                 pro = r.exec(command);
                 BufferedReader in = new BufferedReader(new InputStreamReader(pro.getInputStream()));
-                String line = null;
-                int count =  0;
+                String line;
+                int count = 0;
                 while((line=in.readLine()) != null){
                     if(++count >= 4){
                         String[] temp = line.split("\\s+");
@@ -310,10 +321,10 @@ public class SystemUtil{
                 long startTime = System.currentTimeMillis();
                 pro1 = r.exec(command);
                 BufferedReader in1 = new BufferedReader(new InputStreamReader(pro1.getInputStream()));
-                String line = null;
+                String line;
                 long idleCpuTime1 = 0, totalCpuTime1 = 0;   //分别为系统启动后空闲的CPU时间和总的CPU时间
                 while((line=in1.readLine()) != null){
-                    if(line.startsWith("cpu")){
+                    if(line.startsWith("cpu ")){
                         line = line.trim();
                         String[] temp = line.split("\\s+");
                         idleCpuTime1 = Long.parseLong(temp[4]);
@@ -338,7 +349,7 @@ public class SystemUtil{
                 BufferedReader in2 = new BufferedReader(new InputStreamReader(pro2.getInputStream()));
                 long idleCpuTime2 = 0, totalCpuTime2 = 0;   //分别为系统启动后空闲的CPU时间和总的CPU时间
                 while((line=in2.readLine()) != null){
-                    if(line.startsWith("cpu")){
+                    if(line.startsWith("cpu ")){
                         line = line.trim();
                         String[] temp = line.split("\\s+");
                         idleCpuTime2 = Long.parseLong(temp[4]);
@@ -359,6 +370,7 @@ public class SystemUtil{
                 e.printStackTrace();
             }
             array[1]=cpuUsage;
+            latch.countDown();
         }
     }
 
