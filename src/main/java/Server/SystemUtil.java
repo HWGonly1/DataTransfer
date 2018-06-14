@@ -252,12 +252,10 @@ public class SystemUtil{
 
                 long memTotal = Long.parseLong(map.get("MemTotal").toString());
                 long memFree = Long.parseLong(map.get("MemFree").toString());
-                long memused = memTotal - memFree;
-                //long buffers = Long.parseLong(map.get("Buffers").toString());
-                //long cached = Long.parseLong(map.get("Cached").toString());
-                //float usage = (float) (memused - buffers - cached) / memTotal;
+                long buffers = Long.parseLong(map.get("Buffers").toString());
+                long cached = Long.parseLong(map.get("Cached").toString());
+                array[3] = (float) (memTotal -memFree- buffers - cached) / memTotal;
                 //return usage;
-                array[3]=((float)memused)/memTotal;
             } catch (Exception e) {
                 e.printStackTrace();
             } finally {
