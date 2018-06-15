@@ -1,5 +1,6 @@
 package Test;
 
+import Director.Director;
 import FTP.LoadInfo;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.ZkClient;
@@ -72,7 +73,7 @@ public class Test {
             e.printStackTrace();
         }
         */
-
+        /*
         String line="   em4:       0       0    0    0    0     0          0         0        0       0    0    0    0     0       0          0\n";
         String[] splits = line.split(":");
 
@@ -87,6 +88,22 @@ public class Test {
             }
 
             //long inSize1 = Long.parseLong(temp[0]);
+        }
+        */
+
+        Director director=new Director("192.168.10.10:2181,192.168.10.14:2181,192.168.10.22:2181","/Servers");
+        new Thread(director).start();
+        while(true){
+            //System.out.println(director.zkUtil.validServer);
+            //System.out.println(director.zkUtil.infoMap);
+            if(director.zkUtil.validServer.size()>0){
+                System.out.println(director.responseServer());
+            }
+            try{
+                Thread.sleep(1000);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
         }
     }
 }

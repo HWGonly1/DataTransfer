@@ -334,10 +334,14 @@ public class Server implements Runnable{
 
     public String responseServer(){
         String server="";
-        synchronized (zkUtil.validServer){
-            server=zkUtil.validServer.get(zkUtil.no);
-            zkUtil.no++;
-            zkUtil.no%=zkUtil.validServer.size();
+        if(zkUtil.changed){
+            synchronized (zkUtil.validServer){
+                server=zkUtil.validServer.get(zkUtil.no);
+                zkUtil.no++;
+                zkUtil.no%=zkUtil.validServer.size();
+            }
+        }else{
+            server=addr;
         }
         return server;
     }

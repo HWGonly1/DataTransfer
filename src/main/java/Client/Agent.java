@@ -13,6 +13,7 @@ public class Agent implements Runnable{
     private String pathname;
     private String localpath;
     private int sleeptime;
+    private int no=0;
 
     public Agent(String director,int directPort,int ftpPort,String pathname,String localpath,int sleeptime){
         this.director=director;
@@ -43,7 +44,7 @@ public class Agent implements Runnable{
                     socket.close();
                 }
 
-                new Uploader(server,ftpPort,"root","beap123","",Thread.currentThread().getName(),"").upload();
+                new Uploader(server,ftpPort,"root","beap123",pathname,Thread.currentThread().getName()+no++,localpath).upload();
                 Thread.sleep(sleeptime);
             }
         }catch (IOException e){

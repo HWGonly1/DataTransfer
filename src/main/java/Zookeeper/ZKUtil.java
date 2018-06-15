@@ -34,7 +34,7 @@ public class ZKUtil{
 
 
     public ZKUtil(String zkServers,String rootNode,String addr,Boolean isServer){
-        //System.setProperty("log4j.configuration","file:/Users/hwg/IdeaProjects/DataTransfer/src/log4j.properties");
+        System.setProperty("log4j.configuration","log4j.properties");
         this.zkServers=zkServers;
         this.rootNode=rootNode;
         this.addr=addr;
@@ -65,24 +65,32 @@ public class ZKUtil{
             zkClient.createPersistent(rootNode);
         }
 
-        zkClient.createEphemeral(rootNode+"/"+addr,info);
-
-        try {
-            Thread.sleep(2000);
-        }catch (Exception e){
-            e.printStackTrace();
+        if(isServer){
+            zkClient.createEphemeral(rootNode+"/"+addr,info);
         }
-
 
         zkClient.subscribeChildChanges(rootNode, new ChildListener());
         infoMap=getServerList();
-        for(String s:infoMap.keySet()){
-            if(!s.equals(addr)){
-                zkClient.subscribeDataChanges(rootNode+"/"+s,new DataListener());
+        for(String server:infoMap.keySet()){
+            if(!server.equals(addr)){
+                zkClient.subscribeDataChanges(rootNode+"/"+server,new DataListener());
             }
         }
 
+        Thread balancer=new Thread(new Balancer());
+        balancer.start();
         new Thread(new Balancer()).start();
+
+        while(!balancer.isAlive()){
+            try {
+                Thread.sleep(10);
+            }catch (InterruptedException e){
+                e.printStackTrace();
+            }
+        }
+        synchronized (valid){
+            valid.notifyAll();
+        }
     }
 
     /**
@@ -101,43 +109,48 @@ public class ZKUtil{
 
     class ChildListener implements IZkChildListener{
         public void handleChildChange(String s, List<String> list) throws Exception {
-            for(String str:list){
-                if(!infoMap.containsKey(str)){
-                    zkClient.subscribeDataChanges(s+"/"+str,new DataListener());
+            for(String server:list){
+                if(!infoMap.containsKey(server)){
+                    zkClient.subscribeDataChanges(s+"/"+server,new DataListener());
                 }
             }
 
             infoMap.clear();
             infoMap=getServerList();
+
+            synchronized (valid){
+                valid.notifyAll();
+            }
         }
     }
 
     class DataListener implements IZkDataListener{
         public void handleDataChange(String s, Object o) throws Exception {
-            infoMap.put(s,(LoadInfo)o);
+            infoMap.put(s.substring(s.lastIndexOf("/")+1),(LoadInfo)o);
             synchronized (valid){
-                valid=false;
                 valid.notifyAll();
             }
         }
 
         public void handleDataDeleted(String s) throws Exception {
             infoMap.remove(s);
+            synchronized (valid){
+                valid.notifyAll();
+            }
         }
     }
 
     class Balancer implements Runnable{
 
         public void run(){
-            synchronized (valid){
-                while(valid==true){
-                    try {
+            while(true){
+                try {
+                    synchronized(valid){
                         valid.wait();
-                        rebalance();
-                        valid=true;
-                    }catch (InterruptedException e){
-                        e.printStackTrace();
                     }
+                    rebalance();
+                }catch (InterruptedException e){
+                    e.printStackTrace();
                 }
             }
         }
@@ -170,6 +183,7 @@ public class ZKUtil{
                         changed=true;
                         interval=Math.max(interval/2,5000);
                     }else{
+                        validServer.addAll(load.keySet());
                         changed=false;
                         interval=Math.min(interval*2,40000);
                     }
@@ -183,6 +197,7 @@ public class ZKUtil{
                         changed=true;
                         interval=Math.max(interval/2,50);
                     }else{
+                        validServer.addAll(load.keySet());
                         changed=false;
                         interval=Math.min(interval*2,40000);
                     }

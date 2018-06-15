@@ -38,6 +38,7 @@ public class Director implements Runnable{
     }
 
     public void run(){
+        zkUtil.regServer(null);
         ServerSocket server=null;
         try{
             server=new ServerSocket(9529);
@@ -54,7 +55,6 @@ public class Director implements Runnable{
                 if(socket!=null){
                     try{
                         PrintWriter writer=new PrintWriter(socket.getOutputStream());
-                        Map<String, LoadInfo> allServers=zkUtil.getServerList();
                         StringBuilder sb=new StringBuilder();
 
                         sb.append(responseServer());

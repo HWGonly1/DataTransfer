@@ -66,7 +66,7 @@ public class InfoCollector implements Runnable{
                 writer=new FileWriter(path,true);
                 for(String key:infoMap.keySet()){
                     writer.write(System.currentTimeMillis()+"\r\n");
-                    writer.write(s+"/"+key+"\t");
+                    writer.write(key+"\t");
                     writer.write(infoMap.get(key).cpu+"\t"+infoMap.get(key).disk+"\t"+infoMap.get(key).mem+"\t"+infoMap.get(key).net);
                     writer.write("\r\n");
                 }
@@ -79,7 +79,7 @@ public class InfoCollector implements Runnable{
     }
     class DataListener implements IZkDataListener {
         public void handleDataChange(String s, Object o) throws Exception {
-            infoMap.put(s,(LoadInfo)o);
+            infoMap.put(s.substring(s.lastIndexOf("/")+1),(LoadInfo)o);
             FileWriter writer=null;
             try{
                 writer=new FileWriter(path,true);
