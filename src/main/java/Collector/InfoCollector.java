@@ -105,12 +105,5 @@ public class InfoCollector implements Runnable{
     public static void main(String[] args){
         Thread collector=new Thread(new InfoCollector(args[0],args[1],args[2]));
         collector.start();
-        /*
-        try {
-            collector.join();
-        }catch (InterruptedException e){
-            e.printStackTrace();
-        }
-        */
     }
 }

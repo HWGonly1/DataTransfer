@@ -214,5 +214,10 @@ public class ZKUtil{
             float load=1-(1-memFactor*info.mem)*(1-cpuFactor*info.cpu)*(1-diskFactor*info.disk)*(1-netFactor*info.net);
             return load;
         }
+
+        //WRR
+        public void next(){
+
+        }
     }
 }
