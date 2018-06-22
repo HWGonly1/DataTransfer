@@ -2,6 +2,7 @@ package Client;
 
 import java.io.*;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class Agent implements Runnable{
     private String director="192.168.10.10";
@@ -35,10 +36,11 @@ public class Agent implements Runnable{
 
             while(true){
                 if(System.currentTimeMillis()-lastTime>interval){
-                    socket=new Socket(server,directPort);
+                    socket = new Socket(server, directPort);
                     reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     readline=reader.readLine();
-                    server=readline.split(";")[0];
+
+                    server = readline.split(";")[0];
                     interval=Integer.parseInt(readline.split(";")[1]);
                     reader.close();
                     socket.close();

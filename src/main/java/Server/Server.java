@@ -305,29 +305,12 @@ public class Server implements Runnable{
             e.printStackTrace();
         }
         while(true){
-            Socket socket=null;
+            Socket socket;
             try{
                 socket=server.accept();
+                new Thread(new SocketDealer(socket)).start();
             }catch(IOException e){
                 e.printStackTrace();
-            }finally {
-                if(socket!=null){
-                    try{
-                        PrintWriter writer=new PrintWriter(socket.getOutputStream());
-
-                        StringBuffer sb=new StringBuffer();
-                        sb.append(responseServer());
-                        sb.append(";");
-                        sb.append(zkUtil.interval);
-
-                        writer.println(sb.toString());
-                        writer.flush();
-                        writer.close();
-                        socket.close();
-                    }catch (IOException e){
-                        e.printStackTrace();
-                    }
-                }
             }
         }
     }
@@ -362,6 +345,38 @@ public class Server implements Runnable{
                 info.refresh();
                 zkUtil.infoMap.put(addr,info);
                 zkUtil.report(info);
+            }
+        }
+    }
+
+    public class SocketDealer implements Runnable{
+        Socket socket;
+        SocketDealer(Socket socket){
+            this.socket=socket;
+        }
+        public void run() {
+            if(socket!=null){
+                try{
+                    PrintWriter writer=new PrintWriter(socket.getOutputStream());
+                    StringBuffer sb=new StringBuffer();
+                    sb.append(responseServer());
+                    sb.append(";");
+                    sb.append(zkUtil.interval);
+                    writer.println(sb.toString());
+                    writer.flush();
+
+                    while(!socket.isClosed()){
+                        try {
+                            Thread.sleep(10);
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
+                    }
+                    writer.close();
+                    socket.close();
+                }catch (IOException e){
+                    e.printStackTrace();
+                }
             }
         }
     }

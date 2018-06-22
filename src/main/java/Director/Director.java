@@ -49,28 +49,44 @@ public class Director implements Runnable{
             Socket socket=null;
             try{
                 socket=server.accept();
+                new Thread(new SocketDealer(socket)).start();
             }catch(IOException e){
                 e.printStackTrace();
-            }finally {
-                if(socket!=null){
-                    try{
-                        PrintWriter writer=new PrintWriter(socket.getOutputStream());
-                        StringBuilder sb=new StringBuilder();
+            }
+        }
+    }
 
-                        sb.append(responseServer());
-                        sb.append(";");
+    public class SocketDealer implements Runnable{
+        Socket socket;
+        SocketDealer(Socket socket){
+            this.socket=socket;
+        }
+        public void run() {
+            if(socket!=null){
+                try{
+                    PrintWriter writer=new PrintWriter(socket.getOutputStream());
+                    StringBuffer sb=new StringBuffer();
+                    sb.append(responseServer());
+                    sb.append(";");
+                    writer.println(sb.toString());
+                    writer.flush();
 
-                        writer.println(sb.toString());
-                        writer.flush();
-                        writer.close();
-                        socket.close();
-                    }catch (IOException e){
-                        e.printStackTrace();
+                    while(!socket.isClosed()){
+                        try {
+                            Thread.sleep(10);
+                        }catch(InterruptedException e){
+                            e.printStackTrace();
+                        }
                     }
+                    writer.close();
+                    socket.close();
+                }catch (IOException e){
+                    e.printStackTrace();
                 }
             }
         }
     }
+
     public static void main(String[] args){
         if(args.length!=2){
             System.out.println("Wrong arguments to launch Director!");

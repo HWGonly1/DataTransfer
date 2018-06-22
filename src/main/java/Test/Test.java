@@ -90,7 +90,7 @@ public class Test {
             //long inSize1 = Long.parseLong(temp[0]);
         }
         */
-
+        /*
         Director director=new Director("192.168.10.10:2181,192.168.10.14:2181,192.168.10.22:2181","/Servers");
         new Thread(director).start();
         while(true){
@@ -104,6 +104,23 @@ public class Test {
             }catch (InterruptedException e){
                 e.printStackTrace();
             }
+        }
+        */
+        Process pro;
+        Runtime r=Runtime.getRuntime();
+        try {
+            pro = r.exec("jps");
+            BufferedReader in=new BufferedReader(new InputStreamReader(pro.getInputStream()));
+            String line=null;
+            while((line=in.readLine())!=null){
+                line=line.trim();
+                String[] splits=line.split("\\s+");
+                System.out.println(splits[0]+","+splits[1]);
+            }
+            in.close();
+            pro.destroy();
+        }catch (IOException e){
+            e.printStackTrace();
         }
     }
 }

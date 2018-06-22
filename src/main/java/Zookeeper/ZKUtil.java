@@ -79,7 +79,6 @@ public class ZKUtil{
 
         Thread balancer=new Thread(new Balancer());
         balancer.start();
-        new Thread(new Balancer()).start();
 
         while(!balancer.isAlive()){
             try {
@@ -105,6 +104,9 @@ public class ZKUtil{
      */
     public void report(LoadInfo info){
         zkClient.writeData(rootNode+"/"+addr,info);
+        synchronized (valid){
+            valid.notifyAll();
+        }
     }
 
     class ChildListener implements IZkChildListener{
@@ -202,6 +204,7 @@ public class ZKUtil{
                         interval=Math.min(interval*2,40000);
                     }
                 }
+                no=0;
             }
         }
 

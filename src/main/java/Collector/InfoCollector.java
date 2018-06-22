@@ -64,8 +64,8 @@ public class InfoCollector implements Runnable{
             FileWriter writer=null;
             try{
                 writer=new FileWriter(path,true);
+                writer.write(System.currentTimeMillis()+"\r\n");
                 for(String key:infoMap.keySet()){
-                    writer.write(System.currentTimeMillis()+"\r\n");
                     writer.write(key+"\t");
                     writer.write(infoMap.get(key).cpu+"\t"+infoMap.get(key).disk+"\t"+infoMap.get(key).mem+"\t"+infoMap.get(key).net);
                     writer.write("\r\n");
@@ -83,8 +83,8 @@ public class InfoCollector implements Runnable{
             FileWriter writer=null;
             try{
                 writer=new FileWriter(path,true);
+                writer.write(System.currentTimeMillis()+"\r\n");
                 for(String key:infoMap.keySet()){
-                    writer.write(System.currentTimeMillis()+"\r\n");
                     writer.write(key+"\t");
                     writer.write(infoMap.get(key).cpu+"\t"+infoMap.get(key).disk+"\t"+infoMap.get(key).mem+"\t"+infoMap.get(key).net);
                     writer.write("\r\n");
