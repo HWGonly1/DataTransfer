@@ -1,6 +1,7 @@
 package Zookeeper;
 
 import FTP.LoadInfo;
+import Server.StaticUtil;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.IZkDataListener;
 import org.I0Itec.zkclient.ZkClient;
@@ -31,7 +32,9 @@ public class ZKUtil{
     public boolean changed=false;
     //当前服务器更新间隔
     public int interval=10000;
-
+    //当前服务器静态性能
+    public StaticUtil su;
+    public int weight;
 
     public ZKUtil(String zkServers,String rootNode,String addr,Boolean isServer){
         System.setProperty("log4j.configuration","log4j.properties");
@@ -40,6 +43,9 @@ public class ZKUtil{
         this.addr=addr;
         this.zkClient=new ZkClient(zkServers,3000,3000,new SerializableSerializer());
         this.isServer=isServer;
+
+        this.su=new StaticUtil();
+        this.weight=getWeight();
     }
 
     public Hashtable<String,LoadInfo> getServerList(){
@@ -109,6 +115,15 @@ public class ZKUtil{
         }
     }
 
+    public int getWeight(){
+        if(!zkClient.exists("/Static")){
+            zkClient.createEphemeral("/Static",su);
+        }
+        StaticUtil refer=zkClient.readData("/Static");
+        int weight=Math.round(10*(float)su.cpuCores/refer.cpuCores+20*(float)su.diskIOSpeed/refer.diskIOSpeed+20*(float)su.memCapcity/refer.memCapcity+50*(float)su.bandwith/refer.bandwith);
+        return weight;
+    }
+
     class ChildListener implements IZkChildListener{
         public void handleChildChange(String s, List<String> list) throws Exception {
             for(String server:list){
@@ -163,6 +178,10 @@ public class ZKUtil{
         public void rebalance(){
             Map<String,LoadInfo> copy=new HashMap<String, LoadInfo>();
             Map<String,Float> load=new HashMap<String,Float>();
+
+            //存将被进行分配的服务器负载状态，传递给WRR算法实现形成新的ValidServer列表
+            Map<String,Node> servers=new HashMap<String, Node>();
+
             synchronized (infoMap){
                 copy.putAll(infoMap);
             }
@@ -179,13 +198,19 @@ public class ZKUtil{
                     if(max-min>threshold){
                         for(String host:load.keySet()){
                             if(load.get(host)-min<threshold){
-                                validServer.add(host);
+                                //validServer.add(host);
+
+                                servers.put(host,new Node(copy.get(host).getWeight()));
                             }
                         }
                         changed=true;
                         interval=Math.max(interval/2,5000);
                     }else{
-                        validServer.addAll(load.keySet());
+                        //validServer.addAll(load.keySet());
+
+                        for(String host:copy.keySet()){
+                            servers.put(host,new Node(copy.get(host).getWeight()));
+                        }
                         changed=false;
                         interval=Math.min(interval*2,40000);
                     }
@@ -193,17 +218,32 @@ public class ZKUtil{
                     if(max-min>threshold){
                         for(String host:load.keySet()){
                             if(load.get(host)<0.9&&load.get(host)-min<threshold){
-                                validServer.add(host);
+                                //validServer.add(host);
+
+                                servers.put(host,new Node(copy.get(host).getWeight()));
                             }
                         }
                         changed=true;
                         interval=Math.max(interval/2,50);
                     }else{
-                        validServer.addAll(load.keySet());
+                        //validServer.addAll(load.keySet());
+
+                        for(String host:copy.keySet()){
+                            servers.put(host,new Node(copy.get(host).getWeight()));
+                        }
                         changed=false;
                         interval=Math.min(interval*2,40000);
                     }
                 }
+
+                int total=0;
+                for(Node node:servers.values()){
+                    total+=node.weight;
+                }
+                for(int i=0;i<total;i++){
+                    validServer.add(next(servers,total));
+                }
+
                 no=0;
             }
         }
@@ -219,8 +259,26 @@ public class ZKUtil{
         }
 
         //WRR
-        public void next(){
+        public String next(Map<String,Node> servers,int total){
+            int max=0;
+            String server="";
+            for(String s:servers.keySet()){
+                if(servers.get(s).curr_weight>max){
+                    server=s;
+                    max=servers.get(s).curr_weight;
+                }
+                servers.get(s).curr_weight+=servers.get(s).weight-total;
+            }
+            return server;
+        }
+    }
 
+    class Node{
+        public int weight;
+        public int curr_weight;
+        public Node(int weight){
+            this.weight=weight;
+            this.curr_weight=weight;
         }
     }
 }

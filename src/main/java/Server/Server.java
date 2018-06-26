@@ -270,6 +270,7 @@ public class Server implements Runnable{
         }
         zkUtil=new ZKUtil(zkServers,rootNode,addr,true);
 
+        LoadInfo.weight=zkUtil.weight;
         info=new LoadInfo();
         info.refresh();
     }
@@ -284,6 +285,8 @@ public class Server implements Runnable{
             e.printStackTrace();
         }
         zkUtil=new ZKUtil(zkServers,rootNode,addr,true);
+
+        LoadInfo.weight=zkUtil.weight;
         info=new LoadInfo();
         info.refresh();
     }
