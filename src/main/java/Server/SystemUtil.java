@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.concurrent.*;
 
-public class SystemUtil implements Serializable{
+public class SystemUtil{
 
     public CountDownLatch latch;
     public float[] array;

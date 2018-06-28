@@ -5,6 +5,7 @@ import Server.StaticUtil;
 import org.I0Itec.zkclient.IZkChildListener;
 import org.I0Itec.zkclient.IZkDataListener;
 import org.I0Itec.zkclient.ZkClient;
+import org.I0Itec.zkclient.exception.ZkNodeExistsException;
 import org.I0Itec.zkclient.serialize.SerializableSerializer;
 
 import java.util.*;
@@ -44,8 +45,10 @@ public class ZKUtil{
         this.zkClient=new ZkClient(zkServers,3000,3000,new SerializableSerializer());
         this.isServer=isServer;
 
-        this.su=new StaticUtil();
-        this.weight=getWeight();
+        if(isServer) {
+            this.su = new StaticUtil();
+            this.weight = getWeight();
+        }
     }
 
     public Hashtable<String,LoadInfo> getServerList(){
@@ -72,7 +75,10 @@ public class ZKUtil{
         }
 
         if(isServer){
-            zkClient.createEphemeral(rootNode+"/"+addr,info);
+            try {
+                zkClient.createEphemeral(rootNode + "/" + addr, info);
+            }catch (ZkNodeExistsException e){
+            }
         }
 
         zkClient.subscribeChildChanges(rootNode, new ChildListener());
@@ -116,11 +122,18 @@ public class ZKUtil{
     }
 
     public int getWeight(){
-        if(!zkClient.exists("/Static")){
-            zkClient.createEphemeral("/Static",su);
+        try {
+            zkClient.createEphemeral("/Static", su);
+        }catch (ZkNodeExistsException e){
         }
         StaticUtil refer=zkClient.readData("/Static");
+
+        //System.out.println(su.bandwith+"\t"+su.cpuCores+"\t"+su.diskIOSpeed+"\t"+su.memCapcity);
+
         int weight=Math.round(10*(float)su.cpuCores/refer.cpuCores+20*(float)su.diskIOSpeed/refer.diskIOSpeed+20*(float)su.memCapcity/refer.memCapcity+50*(float)su.bandwith/refer.bandwith);
+
+        //System.out.println(weight);
+
         return weight;
     }
 
@@ -240,6 +253,7 @@ public class ZKUtil{
                 for(Node node:servers.values()){
                     total+=node.weight;
                 }
+
                 for(int i=0;i<total;i++){
                     validServer.add(next(servers,total));
                 }
