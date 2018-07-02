@@ -1,6 +1,7 @@
 package Client;
 
 import java.io.*;
+import java.net.InetAddress;
 import java.net.Socket;
 import java.net.SocketException;
 
@@ -27,9 +28,11 @@ public class Agent implements Runnable{
 
     public void run(){
         try {
+            String address= InetAddress.getLocalHost().getHostAddress();
             Socket socket = new Socket(director, directPort);
             BufferedReader reader=new BufferedReader(new InputStreamReader(socket.getInputStream()));
             String readline=reader.readLine();
+
             String server=readline.split(";")[0];
             reader.close();
             socket.close();
@@ -46,7 +49,7 @@ public class Agent implements Runnable{
                     socket.close();
                 }
 
-                new Uploader(server,ftpPort,"root","beap123",pathname,Thread.currentThread().getName()+no++,localpath).upload();
+                new Uploader(server,ftpPort,"root","beap123",pathname,address+Thread.currentThread().getName()+"_"+no++,localpath).upload();
                 Thread.sleep(sleeptime);
             }
         }catch (IOException e){

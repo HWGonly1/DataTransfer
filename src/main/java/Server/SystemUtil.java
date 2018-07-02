@@ -157,7 +157,6 @@ public class SystemUtil{
                     e.printStackTrace();
                 }
                 //第二次采集流量数据
-                long endTime = System.currentTimeMillis();
                 pro2 = r.exec(command);
                 BufferedReader in2 = new BufferedReader(new InputStreamReader(pro2.getInputStream()));
                 long inSize2;
@@ -176,12 +175,13 @@ public class SystemUtil{
                         //dls.set(i++,inSize2-lastDL);
                     }
                 }
+                long endTime = System.currentTimeMillis();
                 in2.close();
                 pro2.destroy();
 
 
                 long max=0;
-                String card="lo";
+                String card="";
                 for(String s:map.keySet()){
                     if(map.get(s)>max){
                         card=s;
@@ -198,7 +198,7 @@ public class SystemUtil{
                 */
 
                 float interval=(float)(endTime-startTime)/1000;
-                float curRate=(float)max*8/(interval*1000000);
+                float curRate=(float)max*8/(interval*1024*1024);
 
                 //获取流量最大的网卡带宽
                 pro3=r.exec("ethtool "+card);

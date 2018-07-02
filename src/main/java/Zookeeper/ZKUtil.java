@@ -130,9 +130,9 @@ public class ZKUtil{
 
         //System.out.println(su.bandwith+"\t"+su.cpuCores+"\t"+su.diskIOSpeed+"\t"+su.memCapcity);
 
-        int weight=Math.round(10*(float)su.cpuCores/refer.cpuCores+20*(float)su.diskIOSpeed/refer.diskIOSpeed+20*(float)su.memCapcity/refer.memCapcity+50*(float)su.bandwith/refer.bandwith);
+        int weight=Math.round(1*(float)su.cpuCores/refer.cpuCores+2*(float)su.diskIOSpeed/refer.diskIOSpeed+2*(float)su.memCapcity/refer.memCapcity+5*(float)su.bandwith/refer.bandwith);
 
-        //System.out.println(weight);
+        //System.out.println("weight:"+weight);
 
         return weight;
     }
@@ -258,6 +258,13 @@ public class ZKUtil{
                     validServer.add(next(servers,total));
                 }
 
+                /*
+                for(String s:validServer){
+                    System.out.print(s);
+                }
+                System.out.println(total);
+                */
+
                 no=0;
             }
         }
@@ -280,8 +287,10 @@ public class ZKUtil{
                 if(servers.get(s).curr_weight>max){
                     server=s;
                     max=servers.get(s).curr_weight;
+                    servers.get(s).curr_weight+=servers.get(s).weight-total;
+                }else{
+                    servers.get(s).curr_weight+=servers.get(s).weight;
                 }
-                servers.get(s).curr_weight+=servers.get(s).weight-total;
             }
             return server;
         }
