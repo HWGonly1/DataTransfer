@@ -30,9 +30,9 @@ public class Director implements Runnable{
     public String responseServer(){
         String server="";
         synchronized (zkUtil.validServer){
+            zkUtil.no%=zkUtil.validServer.size();
             server=zkUtil.validServer.get(zkUtil.no);
             zkUtil.no++;
-            zkUtil.no%=zkUtil.validServer.size();
         }
         return server;
     }
@@ -71,6 +71,7 @@ public class Director implements Runnable{
                     writer.println(sb.toString());
                     writer.flush();
 
+                    /*
                     while(!socket.isClosed()){
                         try {
                             Thread.sleep(10);
@@ -78,6 +79,7 @@ public class Director implements Runnable{
                             e.printStackTrace();
                         }
                     }
+                    */
                     writer.close();
                     socket.close();
                 }catch (IOException e){

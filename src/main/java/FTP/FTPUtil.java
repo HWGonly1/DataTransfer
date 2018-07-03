@@ -26,10 +26,11 @@ public class FTPUtil {
     public static boolean uploadFile(String hostname, int port, String username, String password, String pathname, String fileName, InputStream inputStream){
         boolean flag=false;
         FTPClient ftpClient=new FTPClient();
-        ftpClient.enterLocalPassiveMode();
         ftpClient.setControlEncoding("UTF-8");
         try{
             ftpClient.connect(hostname,port);
+            ftpClient.enterLocalPassiveMode();
+            ftpClient.setRemoteVerificationEnabled(false);
             ftpClient.login(username,password);
             int replyCode=ftpClient.getReplyCode();
             flag=FTPReply.isPositiveCompletion(replyCode);

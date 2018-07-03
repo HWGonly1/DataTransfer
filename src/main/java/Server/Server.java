@@ -276,19 +276,7 @@ public class Server implements Runnable{
     }
 
     Server(String zkServers,String rootNode){
-        Server.collectInterval=2000;
-        this.zkServers=zkServers;
-        this.rootNode=rootNode;
-        try{
-            addr= InetAddress.getLocalHost().getHostAddress();
-        }catch(UnknownHostException e){
-            e.printStackTrace();
-        }
-        zkUtil=new ZKUtil(zkServers,rootNode,addr,true);
-
-        LoadInfo.staticWeight=zkUtil.weight;
-        info=new LoadInfo();
-        info.refresh();
+        this(2000,zkServers,rootNode);
     }
 
 
@@ -322,9 +310,9 @@ public class Server implements Runnable{
         String server="";
         if(zkUtil.changed){
             synchronized (zkUtil.validServer){
+                zkUtil.no%=zkUtil.validServer.size();
                 server=zkUtil.validServer.get(zkUtil.no);
                 zkUtil.no++;
-                zkUtil.no%=zkUtil.validServer.size();
             }
         }else{
             server=addr;
@@ -368,6 +356,7 @@ public class Server implements Runnable{
                     writer.println(sb.toString());
                     writer.flush();
 
+                    /*
                     while(!socket.isClosed()){
                         try {
                             Thread.sleep(10);
@@ -375,6 +364,8 @@ public class Server implements Runnable{
                             e.printStackTrace();
                         }
                     }
+                    */
+
                     writer.close();
                     socket.close();
                 }catch (IOException e){

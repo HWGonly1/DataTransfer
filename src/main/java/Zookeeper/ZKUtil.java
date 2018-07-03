@@ -38,7 +38,7 @@ public class ZKUtil{
     public int weight;
 
     public ZKUtil(String zkServers,String rootNode,String addr,Boolean isServer){
-        System.setProperty("log4j.configuration","log4j.properties");
+        //System.setProperty("log4j.configuration","log4j.properties");
         this.zkServers=zkServers;
         this.rootNode=rootNode;
         this.addr=addr;
@@ -130,7 +130,7 @@ public class ZKUtil{
 
         //System.out.println(su.bandwith+"\t"+su.cpuCores+"\t"+su.diskIOSpeed+"\t"+su.memCapcity);
 
-        int weight=Math.round(1*(float)su.cpuCores/refer.cpuCores+2*(float)su.diskIOSpeed/refer.diskIOSpeed+2*(float)su.memCapcity/refer.memCapcity+5*(float)su.bandwith/refer.bandwith);
+        int weight=Math.round(4*(float)su.cpuCores/refer.cpuCores+1*(float)su.diskIOSpeed/refer.diskIOSpeed+1*(float)su.memCapcity/refer.memCapcity+4*(float)su.bandwith/refer.bandwith);
 
         //System.out.println("weight:"+weight);
 
@@ -265,7 +265,7 @@ public class ZKUtil{
                 System.out.println(total);
                 */
 
-                no=0;
+                //no=0;
             }
         }
 
