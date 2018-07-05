@@ -145,8 +145,8 @@ public class SystemUtil{
                     if(splits.length>1&&(!splits[0].trim().equals("lo"))){
                         String[] temp = splits[1].trim().split("\\s+");
                         inSize1 = Long.parseLong(temp[0]);
-                        outSize1 = Long.parseLong(temp[8]);
-                        map.put(splits[0].trim(),inSize1+outSize1);
+                        //outSize1 = Long.parseLong(temp[8]);
+                        map.put(splits[0].trim(),inSize1);
                     }
                 }
                 in1.close();
@@ -168,9 +168,9 @@ public class SystemUtil{
                     if(splits.length>1&&(!splits[0].trim().equals("lo"))){
                         String[] temp = splits[1].trim().split("\\s+");
                         inSize2 = Long.parseLong(temp[0]);
-                        outSize2 = Long.parseLong(temp[8]);
+                        //outSize2 = Long.parseLong(temp[8]);
                         Long last=map.get(splits[0].trim());
-                        map.put(splits[0].trim(),inSize2+outSize2-last);
+                        map.put(splits[0].trim(),inSize2-last);
                         //Long lastDL=dls.get(i);
                         //dls.set(i++,inSize2-lastDL);
                     }

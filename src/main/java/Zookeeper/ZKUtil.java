@@ -213,7 +213,7 @@ public class ZKUtil{
                             if(load.get(host)-min<threshold){
                                 //validServer.add(host);
 
-                                servers.put(host,new Node(copy.get(host).getWeight()));
+                                servers.put(host,new Node(Math.round(copy.get(host).getWeight()*10*load.get(host))));
                             }
                         }
                         changed=true;
@@ -222,7 +222,7 @@ public class ZKUtil{
                         //validServer.addAll(load.keySet());
 
                         for(String host:copy.keySet()){
-                            servers.put(host,new Node(copy.get(host).getWeight()));
+                            servers.put(host,new Node(Math.round(copy.get(host).getWeight()*10*load.get(host))));
                         }
                         changed=false;
                         interval=Math.min(interval*2,40000);
@@ -233,7 +233,7 @@ public class ZKUtil{
                             if(load.get(host)<0.9&&load.get(host)-min<threshold){
                                 //validServer.add(host);
 
-                                servers.put(host,new Node(copy.get(host).getWeight()));
+                                servers.put(host,new Node(Math.round(copy.get(host).getWeight()*10*load.get(host))));
                             }
                         }
                         changed=true;
@@ -242,7 +242,7 @@ public class ZKUtil{
                         //validServer.addAll(load.keySet());
 
                         for(String host:copy.keySet()){
-                            servers.put(host,new Node(copy.get(host).getWeight()));
+                            servers.put(host,new Node(Math.round(copy.get(host).getWeight()*10*load.get(host))));
                         }
                         changed=false;
                         interval=Math.min(interval*2,40000);
